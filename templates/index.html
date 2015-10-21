@@ -27,10 +27,18 @@
   </div><!-- /.container-fluid -->
 </nav>
 <div class="container-fluid">
+<a href="{{url_for('newCategory')}}"> Create a new category </a>
+</br>
+<a href="{{url_for('newItem')}}"> Create a new item </a>
+</br>
+</br>
+</br>
+
+
 Category:
 
 	{% for c in category %}
-		<a href = "{{url_for('showIndex', category_name = c.name)}}">
+		<a href = "{{url_for('showCategory', category_name = c.name)}}">
 			<div class="row">
 				<div class="col-md-1"></div>
 					<div class="col-md-10">
@@ -46,12 +54,12 @@ Category:
 <div class="container-fluid">
 -----------------------------------------------------------------</br>
 item:
-	{% for i in item %}
-		<a href = "{{url_for('showIndex', item_name = i.name)}}">
+	{% for i in catitem %}
+		<a href = "{{url_for('showItem', category_name = i.name, item_name = i.item_name)}}">
 			<div class="row">
 				<div class="col-md-1"></div>
 					<div class="col-md-10">
-						<h3>{{i.name}}</h3>
+						<h3>{{i.item_name}}</h3>
 					</div>
 				<div class="col-md-1"></div>
 			</div>
