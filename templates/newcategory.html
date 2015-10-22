@@ -1,31 +1,22 @@
-<html>
-<head>
-	<link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
-	</head>
-<body>
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
 
-<h1>New Category</h1>
+<div class="col-md-11 col-md-offset-1 padding-none">
+	<h1>New Category</h1>
+	<div class = 'pane'>
+		<form action="{{ url_for('newCategory')}}" method = 'post'>
 
-<div class = 'pane'>
-<form action="{{ url_for('newCategory')}}" method = 'post'>
+			<dl>
+				<dt>Name:</dt>
+				<dd><input type ='text' size='30' name='name' required></dd>
+				<dt>Description:</dt>
+            	<dd><textarea name = 'description' rows='5' cols='40' required></textarea></dd>
 
-<dl>
-	<dt>Name:</dt>
-		<dd><input type ='text' size='30' name='name' required></dd>
-            <dt>Description:</dt>
-                        <dd><textarea name = 'description' rows='5' cols='40' required></textarea></dd>
+			</dl>
 
-</dl>
+			<input type='submit' value='Create'>
 
-
-<input type='submit' value='Create'>
-
-</form>
+		</form>
 </div>
-
-</body>
-
-
-
-
-</html>
+{% endblock %}

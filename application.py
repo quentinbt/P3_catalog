@@ -12,6 +12,7 @@ import httplib2
 import json
 from flask import make_response
 import requests
+import xml.etree.ElementTree as ET
 
 app = Flask(__name__)
 
@@ -279,7 +280,7 @@ def disconnect():
 # JSON APIs to view category information
 @app.route('/catalog/categories/JSON')
 def categoryJSON():
-    categories = session.query(Category).all()
+    categories = session.query(Category).join(Item).all()
     return jsonify(Categories=[c.serialize for c in categories])
 
 
@@ -288,9 +289,12 @@ def ItemJSON():
     items = session.query(Item).all()
     return jsonify(ItemsInCategory=[i.serialize for i in items])
 
-
-
-
+# XML APIs to view category information
+@app.route('/catalog/categories/XML')
+def categoryXML():
+    root = session.query(Category).one()
+    root = ET.element('root')
+    return app.response_class(ET.dump(root), mimetype='application/xml')
 
 
 
@@ -315,7 +319,7 @@ def newCategory():
 #        return redirect('/login')
     if request.method == 'POST':
         newCategory = Category(
-            name=request.form['name']) # , user_id=login_session['user_id'])
+            name=request.form['name'], description=request.form['description']) # , user_id=login_session['user_id'])
         session.add(newCategory)
 #        flash('New Category %s Successfully Created' % newCategory.name)
         session.commit()
@@ -436,8 +440,8 @@ def deleteItem(category_name, item_name):
     if 'username' not in login_session:
         return redirect('/login')
     itemToDelete = session.query(Item).filter_by(name=item_name).one()
-#    if login_session['user_id'] != restaurant.user_id:
-#        return "<script>function myFunction() {alert('You are not authorized to delete menu items to this restaurant. Please create your own restaurant in order to delete items.');}</script><body onload='myFunction()''>"
+    if login_session['user_id'] != itemToDelete.user_id:
+        return "<script>function myFunction() {alert('You are not authorized to delete menu items to this restaurant. Please create your own restaurant in order to delete items.');}</script><body onload='myFunction()''>"
     if request.method == 'POST':
         session.delete(itemToDelete)
         session.commit()
