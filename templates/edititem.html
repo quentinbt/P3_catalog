@@ -19,7 +19,9 @@
 
 					<label for="description">Description:</label>
 					<textarea class="form-control" maxlength="250" rows="3" name="description">{{item.description}}</textarea>
-					<label for="name">Category:</label>
+					<label for="picture">Picture URL:</label>
+					<textarea class="form-control" maxlength="250" rows="1" name="picture">{{item.picture}}</textarea>
+					<label for="Category">Category:</label>
 					<dd><select name="category" size="1">
 					<option value="{{item.category_id}}">{{category_name}}</option>
 					{% for i in category %}

@@ -280,7 +280,7 @@ def disconnect():
 # JSON APIs to view category information
 @app.route('/catalog/categories/JSON')
 def categoryJSON():
-    categories = session.query(Category).join(Item).all()
+    categories = session.query(Category).all()
     return jsonify(Categories=[c.serialize for c in categories])
 
 
@@ -289,39 +289,30 @@ def ItemJSON():
     items = session.query(Item).all()
     return jsonify(ItemsInCategory=[i.serialize for i in items])
 
-# XML APIs to view category information
-@app.route('/catalog/categories/XML')
-def categoryXML():
-    root = session.query(Category).one()
-    root = ET.element('root')
-    return app.response_class(ET.dump(root), mimetype='application/xml')
-
-
 
 # Show all category & last item added
 @app.route('/')
 @app.route('/index/')
 def showIndex():
-    users = session.query(User)
     category = session.query(Category).order_by(asc(Category.name))
     item = session.query(Item).order_by(asc(Item.name))
     catitem = session.query(Category.name, Category.id, Item.name.label('item_name'), Item.id.label('item_id')).join(Item)
-#    if 'username' not in login_session:
-#        return render_template('publicrestaurants.html', restaurants=restaurants)
-#    else:
-    return render_template('index.html', category=category, item=item, catitem=catitem, users=users)
+    if 'username' not in login_session:
+        return render_template('publicindex.html', category=category, item=item, catitem=catitem)
+    else:
+        return render_template('index.html', category=category, item=item, catitem=catitem)
 
 
 # create a new category
 @app.route('/category/new/', methods=['GET', 'POST'])
 def newCategory():
-#    if 'username' not in login_session:
-#        return redirect('/login')
+    if 'username' not in login_session:
+        return redirect('/login')
     if request.method == 'POST':
         newCategory = Category(
-            name=request.form['name'], description=request.form['description']) # , user_id=login_session['user_id'])
+            name=request.form['name'], description=request.form['description'], user_id=login_session['user_id'])
         session.add(newCategory)
-#        flash('New Category %s Successfully Created' % newCategory.name)
+        flash('New Category %s Successfully Created' % newCategory.name)
         session.commit()
         return redirect(url_for('showIndex'))
     else:
@@ -330,13 +321,8 @@ def newCategory():
 # Show a category
 @app.route('/catalog/<string:category_name>/')
 def showCategory(category_name):
-#    category = session.query(Category, Item).join(Item).filter_by(id=category_id).one()
-#    creator = getUserInfo(restaurant.user_id)
     catego = session.query(Category).filter_by(name=category_name).one()
     items = session.query(Item).filter_by(category_id=catego.id).all()
-#    if 'username' not in login_session or creator.id != login_session['user_id']:
-#        return render_template('publicmenu.html', items=items, restaurant=restaurant, creator=creator)
-#    else:
     return render_template('category.html', items=items, category_name=category_name, category=catego)
 
 
@@ -347,15 +333,15 @@ def editCategory(category_name):
         Category).filter_by(name=category_name).one()
     if 'username' not in login_session:
         return redirect('/login')
-#    if editedRestaurant.user_id != login_session['user_id']:
-#        return "<script>function myFunction() {alert('You are not authorized to edit this restaurant. Please create your own restaurant in order to edit.');}</script><body onload='myFunction()''>"
+    if editedCategory.user_id != login_session['user_id']:
+        return "<script>function myFunction() {alert('You are not authorized to edit this category. Please create your own category in order to edit.');}</script><body onload='myFunction()''>"
     if request.method == 'POST':
         if request.form['name']:
             editedCategory.name = request.form['name']
         if request.form['description']:
             editedCategory.description = request.form['description']
-#            flash('Restaurant Successfully Edited %s' % editedRestaurant.name)
-            return redirect(url_for('showIndex'))
+        flash('Restaurant Successfully Edited %s' % editedCategory.name)
+        return redirect(url_for('showIndex'))
     else:
         return render_template('editCategory.html', category=editedCategory)
 
@@ -367,11 +353,11 @@ def deleteCategory(category_name):
         Category).filter_by(name=category_name).one()
     if 'username' not in login_session:
         return redirect('/login')
-#    if restaurantToDelete.user_id != login_session['user_id']:
-#        return "<script>function myFunction() {alert('You are not authorized to delete this restaurant. Please create your own restaurant in order to delete.');}</script><body onload='myFunction()''>"
+    if categoryToDelete.user_id != login_session['user_id']:
+        return "<script>function myFunction() {alert('You are not authorized to delete this category. Please create your own category in order to delete.');}</script><body onload='myFunction()''>"
     if request.method == 'POST':
         session.delete(categoryToDelete)
-#        flash('%s Successfully Deleted' % restaurantToDelete.name)
+        flash('%s Successfully Deleted' % categoryToDelete.name)
         session.commit()
         return redirect(url_for('showIndex'))
     else:
@@ -381,13 +367,7 @@ def deleteCategory(category_name):
 # Show item
 @app.route('/catalog/<string:category_name>/<string:item_name>/')
 def showItem(category_name,item_name):
-#    category = session.query(Category, Item).join(Item).filter_by(id=category_id).one()
-#    creator = getUserInfo(restaurant.user_id)
-#    item = session.query(Item).filter_by(category_id=category_id).all()
     item = session.query(Item).filter_by(name=item_name).one()
-#    if 'username' not in login_session or creator.id != login_session['user_id']:
-#        return render_template('publicmenu.html', items=items, restaurant=restaurant, creator=creator)
-#    else:
     return render_template('item.html', item=item, category_name=category_name)
 
 
@@ -396,15 +376,12 @@ def showItem(category_name,item_name):
 def newItem():
     if 'username' not in login_session:
         return redirect('/login')
-#    category = session.query(Category).filter_by(id=category_id).one()
-#    if login_session['user_id'] != restaurant.user_id:
-#        return "<script>function myFunction() {alert('You are not authorized to add menu items to this restaurant. Please create your own restaurant in order to add items.');}</script><body onload='myFunction()''>"
     category = session.query(Category).order_by(asc(Category.name))
     if request.method == 'POST':
-        newItem = Item(name=request.form['name'], description=request.form['description'], category_id=request.form['category']) # , user_id=restaurant.user_id)
+        newItem = Item(name=request.form['name'], description=request.form['description'], category_id=request.form['category'], picture=request.form['picture'], user_id=login_session['user_id'])
         session.add(newItem)
         session.commit()
-#            flash('New Menu %s Item Successfully Created' % (newItem.name))
+        flash('New Item: %s Successfully Created' % (newItem.name))
         return redirect(url_for('showIndex'))
     else:
         return render_template('newitem.html', category=category)
@@ -417,8 +394,8 @@ def editItem(category_name, item_name):
         return redirect('/login')
     editedItem = session.query(Item).filter_by(name=item_name).one()
     category = session.query(Category).order_by(asc(Category.name))
-#    if login_session['user_id'] != restaurant.user_id:
-#        return "<script>function myFunction() {alert('You are not authorized to edit menu items to this restaurant. Please create your own restaurant in order to edit items.');}</script><body onload='myFunction()''>"
+    if login_session['user_id'] != editedItem.user_id:
+        return "<script>function myFunction() {alert('You are not authorized to edit items to this category. Please create your own category in order to edit items.');}</script><body onload='myFunction()''>"
     if request.method == 'POST':
         if request.form['name']:
             editedItem.name = request.form['name']
@@ -426,9 +403,11 @@ def editItem(category_name, item_name):
             editedItem.description = request.form['description']
         if request.form['category']:
             editedItem.category_id = request.form['category']
+        if request.form['picture']:
+            editedItem.category_id = request.form['picture']
         session.add(editedItem)
         session.commit()
-#        flash('Menu Item Successfully Edited')
+        flash('Item Successfully Edited')
         return redirect(url_for('showIndex'))
     else:
         return render_template('edititem.html', category_name=category_name, category=category, item=editedItem)
@@ -441,11 +420,11 @@ def deleteItem(category_name, item_name):
         return redirect('/login')
     itemToDelete = session.query(Item).filter_by(name=item_name).one()
     if login_session['user_id'] != itemToDelete.user_id:
-        return "<script>function myFunction() {alert('You are not authorized to delete menu items to this restaurant. Please create your own restaurant in order to delete items.');}</script><body onload='myFunction()''>"
+        return "<script>function myFunction() {alert('You are not authorized to delete this items.');}</script><body onload='myFunction()''>"
     if request.method == 'POST':
         session.delete(itemToDelete)
         session.commit()
-        flash('Menu Item Successfully Deleted')
+        flash('Item Successfully Deleted')
         return redirect(url_for('showIndex'))
     else:
         return render_template('deleteitem.html', item=itemToDelete)
