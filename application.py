@@ -311,10 +311,15 @@ def newCategory():
     if request.method == 'POST':
         newCategory = Category(
             name=request.form['name'], description=request.form['description'], user_id=login_session['user_id'])
-        session.add(newCategory)
-        flash('New Category %s Successfully Created' % newCategory.name)
-        session.commit()
-        return redirect(url_for('showIndex'))
+        testname = session.query(Category).filter_by(name=newCategory.name).first()
+        if not testname:
+            session.add(newCategory)
+            flash('New Category %s Successfully Created' % newCategory.name)
+            session.commit()
+            return redirect(url_for('showIndex'))
+        else:
+            flash('New Category %s Already exist' % newCategory.name)
+            return redirect(url_for('showIndex'))
     else:
         return render_template('newCategory.html')
 
@@ -329,8 +334,7 @@ def showCategory(category_name):
 # Edit a category
 @app.route('/catalog/<string:category_name>/edit/', methods=['GET', 'POST'])
 def editCategory(category_name):
-    editedCategory = session.query(
-        Category).filter_by(name=category_name).one()
+    editedCategory = session.query(Category).filter_by(name=category_name).one()
     if 'username' not in login_session:
         return redirect('/login')
     if editedCategory.user_id != login_session['user_id']:
@@ -340,6 +344,8 @@ def editCategory(category_name):
             editedCategory.name = request.form['name']
         if request.form['description']:
             editedCategory.description = request.form['description']
+        session.add(editedCategory)
+        session.commit()
         flash('Restaurant Successfully Edited %s' % editedCategory.name)
         return redirect(url_for('showIndex'))
     else:
@@ -404,7 +410,7 @@ def editItem(category_name, item_name):
         if request.form['category']:
             editedItem.category_id = request.form['category']
         if request.form['picture']:
-            editedItem.category_id = request.form['picture']
+            editedItem.picture = request.form['picture']
         session.add(editedItem)
         session.commit()
         flash('Item Successfully Edited')

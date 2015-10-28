@@ -3,6 +3,7 @@ This app allow every users to share a catalog, users can create/update/delete it
 #Structure:
 	* Configuration instructions
 	* Operating instructions
+	* Endpoint API
 	* File manifest
 	* Changelog
 
@@ -18,6 +19,13 @@ This app allow every users to share a catalog, users can create/update/delete it
 	1. type the command line "python database_setup.py"
 	2. type the command line "python application.py"
 	3. open you web browser to "localhost:8000"
+	
+##Endpoint API
+	The app allow JSON endpoint API.
+	You can access to this via url:
+		http://localhost:8000/catalog/categories/JSON
+		http://localhost:8000/catalog/items/JSON
+		
 
 ##File manifest
 	catalog/
