@@ -14,6 +14,8 @@ This app allow every users to share a catalog, users can create/update/delete it
 	1. python is installled
 	2. flask is installed
 	3. copy the github repository via the command line "git clone https://github.com/quentinbt/catalog.git"
+	4. add your fb client id/secret to the fb_client_secrets.json file
+	5. add your fb client id in /templates/login.html
 
 ##Operating instructions
 	1. type the command line "python database_setup.py"
@@ -36,7 +38,6 @@ This app allow every users to share a catalog, users can create/update/delete it
 	├── application.py
 	├── database_setup.py
 	├── fb_client_secrets.json
-	├── catalog.db
 	└── README.txt
 
 ##Changelog
