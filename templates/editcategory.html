@@ -16,7 +16,7 @@
 				<div class="form-group">
 					<label for="name">Name:</label>
 					<input type ="text" maxlength="100" class="form-control" name="name" value="{{category.name }}">
-
+					<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 					<label for="description">Description:</label>
 					<textarea class="form-control" maxlength="250" rows="3" name="description">{{category.description}}</textarea>
 					</br>

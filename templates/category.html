@@ -1,0 +1,32 @@
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
+
+
+<div class="col-md-11 col-md-offset-1 padding-none">
+
+	<h2>Category: {{category.name}}</h2>
+
+	<b>description:</b></br>
+	{{category.description}}</br>
+	<a href = "{{url_for('editCategory', category_name=category_name)}}">Edit</a>
+	|
+	<a href = "{{url_for('deleteCategory', category_name=category_name)}}">Delete</a>
+	</dl>
+
+
+<h2>Items in {{category_name}}</h2>
+	{% for i in items %}
+		<a href = "{{url_for('showItem', category_name = category.name, item_name = i.name)}}">
+			<div class="row">
+				<div class="col-md-1"></div>
+					<div class="col-md-10 restaurant-list">
+						<h3>{{i.name}}</h3>
+					</div>
+				<div class="col-md-1"></div>
+			</div>
+		</a>
+	{% endfor %}
+</dl>
+</div>
+{% endblock %}

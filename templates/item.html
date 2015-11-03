@@ -1,0 +1,23 @@
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
+
+<div class="col-md-11 col-md-offset-1 padding-none">
+
+	<h2>Item 
+		{%if item.picture != 'None' %}
+		<img src="{{item.picture}}" alt="test" style = "width: 130px; height: 130px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"/>
+		{% endif %}
+	</h2>
+
+		<div class = 'pane'>
+			<b>Name:</b> {{item.name}} <b>in category:</b> {{category_name}} </br>
+			</br>
+			<b>Description:</b></br>
+			{{item.description}}</br>
+			<a href = "{{url_for('editItem', category_name=category_name, item_name=item.name)}}">Edit</a>
+			|
+			<a href = "{{url_for('deleteItem', category_name=category_name, item_name=item.name)}}">Delete</a>
+		</dl>
+</div>
+{% endblock %}
