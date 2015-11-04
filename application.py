@@ -207,10 +207,16 @@ def newCategory():
             name=request.form['name'],
             description=request.form['description'],
             user_id=login_session['user_id'])
-        session.add(newCategory)
-        flash('New Category %s Successfully Created' % newCategory.name)
-        session.commit()
-        return redirect(url_for('showIndex'))
+        testname = session.query(Category).filter_by(
+                    name=newCategory.name).first()
+        if not testname:
+            session.add(newCategory)
+            flash('New Category %s Successfully Created' % newCategory.name)
+            session.commit()
+            return redirect(url_for('showIndex'))
+        else:
+            flash('New Category %s Already exist' % newCategory.name)
+            return redirect(url_for('showIndex'))
     else:
         return render_template('newCategory.html')
 
@@ -236,15 +242,31 @@ def editCategory(category_name):
         orized to edit this category. Please create your own category \
         in order to edit.');}</script><body onload='myFunction()''>"
     if request.method == 'POST':
+        oldname = editedCategory.name
         if request.form['name']:
             editedCategory.name = request.form['name']
         if request.form['description']:
             editedCategory.description = request.form['description']
-        session.add(editedCategory)
-        session.commit()
-        flash('Restaurant Successfully Edited %s' % editedCategory.
-              name)
-        return redirect(url_for('showIndex'))
+        if oldname == editedCategory.name:
+            session.add(editedCategory)
+            session.commit()
+            flash('Category Successfully Edited %s' % editedCategory.
+                  name)
+            return redirect(url_for('showIndex'))
+        else:
+            testname = session.query(Category).filter_by(
+                name=editedCategory.name).first()
+            if not testname:
+                session.add(editedCategory)
+                session.commit()
+                flash('Category Successfully Edited %s' % editedCategory.
+                      name)
+                return redirect(url_for('showIndex'))
+            else:
+                flash('The New Category name %s Already exist'
+                      % editedCategory.name)
+                editedCategory.name = oldname
+                return redirect(url_for('showIndex'))
     else:
         return render_template('editCategory.html',
                                category=editedCategory)
@@ -292,10 +314,16 @@ def newItem():
                        category_id=request.form['category'],
                        picture=request.form['picture'],
                        user_id=login_session['user_id'])
-        session.add(newItem)
-        session.commit()
-        flash('New Item: %s Successfully Created' % (newItem.name))
-        return redirect(url_for('showIndex'))
+        testname = session.query(Item).filter_by(
+            name=newItem.name).first()
+        if not testname:
+            session.add(newItem)
+            session.commit()
+            flash('New Item: %s Successfully Created' % (newItem.name))
+            return redirect(url_for('showIndex'))
+        else:
+            flash('New Item %s Already exist' % newItem.name)
+            return redirect(url_for('showIndex'))
     else:
         return render_template('newitem.html', category=category)
 
@@ -313,6 +341,7 @@ def editItem(category_name, item_name):
         category in order to edit items.');}</script><body onload='myF\
         unction()''>"
     if request.method == 'POST':
+        oldname = editedItem.name
         if request.form['name']:
             editedItem.name = request.form['name']
         if request.form['description']:
@@ -321,10 +350,25 @@ def editItem(category_name, item_name):
             editedItem.category_id = request.form['category']
         if request.form['picture']:
             editedItem.picture = request.form['picture']
-        session.add(editedItem)
-        session.commit()
-        flash('Item Successfully Edited')
-        return redirect(url_for('showIndex'))
+        if oldname == editedItem.name:
+            session.add(editedItem)
+            session.commit()
+            flash('Item Successfully Edited')
+            return redirect(url_for('showIndex'))
+        else:
+            testname = session.query(Item).filter_by(
+                            name=editedItem.name).first()
+            if not testname:
+                session.add(editedItem)
+                session.commit()
+                flash('Item Successfully Edited %s'
+                      % editedItem.name)
+                return redirect(url_for('showIndex'))
+            else:
+                flash('The New Item name %s Already exist'
+                      % editedItem.name)
+                editedItem.name = oldname
+                return redirect(url_for('showIndex'))
     else:
         return render_template('edititem.html',
                                category_name=category_name,
